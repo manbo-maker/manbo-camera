@@ -1,10 +1,9 @@
 import streamlit as st
-from rembg import remove
-from PIL import Image, ImageEnhance, ImageFilter
+from PIL import Image, ImageEnhance
 import io
 
 # ページ設定
-st.set_page_config(page_title="manbo's EC Camera", layout="centered")
+st.set_page_config(page_title="manbo's EC Camera Lite", layout="centered")
 
 def process_image(uploaded_file, count):
     # 1. 画像読み込み
@@ -18,21 +17,16 @@ def process_image(uploaded_file, count):
     img = img.crop((left, top, left + min_dim, top + min_dim))
     img = img.resize((1200, 1200), Image.Resampling.LANCZOS)
 
-    # 3. 背景ぼかし加工
-    mask = remove(img, only_mask=True)
-    background = img.filter(ImageFilter.GaussianBlur(radius=15))
-    img.paste(background, (0, 0), mask=Image.eval(mask, lambda x: 255 - x))
+    # 3. 色彩補正（売れるコントラスト & 彩度アップ）
+    img = ImageEnhance.Contrast(img).enhance(1.3) # コントラスト30%アップ
+    img = ImageEnhance.Color(img).enhance(1.2)    # 彩度20%アップ
 
-    # 4. 色彩補正（売れるコントラスト）
-    img = ImageEnhance.Contrast(img).enhance(1.3)
-    img = ImageEnhance.Color(img).enhance(1.2)
-
-    # 5. ファイル名
+    # 4. ファイル名 (food01, food02...)
     file_name = f"food{str(count).zfill(2)}.jpg"
     return img, file_name
 
-st.title("📸 manbo's EC Camera")
-st.write("写真をアップロードするだけで、1200px・背景ぼかし・色調補正を自動で行います。")
+st.title("📸 manbo's EC Camera (Lite)")
+st.write("1200pxリサイズ・色彩補正・自動命名を行います。")
 
 uploaded_files = st.file_uploader("商品写真を選択してください", type=['jpg', 'jpeg', 'png'], accept_multiple_files=True)
 
