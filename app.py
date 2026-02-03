@@ -6,8 +6,8 @@ import io
 st.set_page_config(page_title="manbo's EC Camera Lite", layout="centered")
 
 def process_image(uploaded_file, count):
-    # 1. 画像読み込み
-    img = Image.open(uploaded_file)
+    # 1. 画像読み込み & 形式変換（エラー回避用）
+    img = Image.open(uploaded_file).convert("RGB")
     
     # 2. 1200 x 1200pxにスクエアリサイズ（中央切り抜き）
     width, height = img.size
@@ -35,6 +35,7 @@ if uploaded_files:
         processed_img, name = process_image(file, i + 1)
         st.image(processed_img, caption=f"加工済み: {name}")
         
+        # 保存処理（ここでエラーが起きないように修正済み）
         buf = io.BytesIO()
         processed_img.save(buf, format="JPEG", quality=90)
         st.download_button(label=f"{name} をスマホに保存", data=buf.getvalue(), file_name=name, mime="image/jpeg")
