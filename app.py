@@ -17,17 +17,22 @@ def process_image(uploaded_file, count):
     img = img.crop((left, top, left + min_dim, top + min_dim))
     img = img.resize((1200, 1200), Image.Resampling.LANCZOS)
 
-    # 3. 色彩補正（数値を小さくして自然な色合いに）
-    # 1.0 が無加工の状態です。
-    img = ImageEnhance.Contrast(img).enhance(1.1) # コントラスト 30%→10%アップに抑制
-    img = ImageEnhance.Color(img).enhance(1.05)   # 彩度 20%→5%アップに抑制
+    # 3. 色彩補正（明るさをプラス）
+    # 1.0 が無加工の状態です。数値が大きいほど強くなります。
+    
+    # 【今回追加】明るさを15%アップ。これが効きます！
+    img = ImageEnhance.Brightness(img).enhance(1.15)
+
+    # 前回調整したコントラストと彩度（そのまま維持）
+    img = ImageEnhance.Contrast(img).enhance(1.1) 
+    img = ImageEnhance.Color(img).enhance(1.05)
 
     # 4. ファイル名
     file_name = f"food{str(count).zfill(2)}.jpg"
     return img, file_name
 
 st.title("📸 manbo's EC Camera (Lite)")
-st.write("1200pxリサイズ・控えめな色彩補正・自動命名を行います。")
+st.write("1200pxリサイズ・明るさUP・色彩補正・自動命名を行います。")
 
 uploaded_files = st.file_uploader("商品写真を選択してください", type=['jpg', 'jpeg', 'png'], accept_multiple_files=True)
 
